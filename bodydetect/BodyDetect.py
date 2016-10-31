@@ -1,15 +1,24 @@
 # import the necessary packages
 from __future__ import print_function
+from imagesearch.tempimage import TempImage
+from dropbox.client import DropboxOAuth2FlowNoRedirect
+from dropbox.client import DropboxClient
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 from imutils.object_detection import non_max_suppression
 from imutils import paths
 import numpy as np
 import argparse
+import warnings
+import datetime
 import imutils
+import json
+import time
 import cv2
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--images", required=False, help="path to images directory")
+#ap.add_argument("-i", "--images", required=False, help="path to images directory")
 #ap.add_argument("-v", "--video", required=False, help="path to video directory")
 ap.add_argument("-c", "--conf", required=True,
 	help="path to the JSON configuration file")
@@ -36,7 +45,7 @@ if conf["use_dropbox"]:
 	# finish the authorization and grab the Dropbox client
 	accessToken = "2E6KRUpWcMAAAAAAAAAACTfxzlGjD3O8FBPck35oblvOPyUYhLW1FOPRcTrtOCrb"
 	client = DropboxClient(accessToken)
-	print "[SUCCESS] dropbox account linked"
+	print("[SUCCESS] dropbox account linked")
 
 # initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
@@ -46,44 +55,52 @@ rawCapture = PiRGBArray(camera, size=tuple(conf["resolution"]))
 
 # allow the camera to warmup, then initialize the average frame, last
 # uploaded timestamp, and frame motion counter
-print "[INFO] warming up..."
+print("[INFO] warming up...")
 time.sleep(conf["camera_warmup_time"])
 avg = None
 lastUploaded = datetime.datetime.now()
+motionCounter = 0
 
+print("boutta camera on yo")
 for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+	print("camera started fam")
 	# grab the raw NumPy array representing the image and initialize
 	# the timestamp and occupied/unoccupied text
 	frame = f.array
 	timestamp = datetime.datetime.now()
 	text = "Unoccupied"
 
+	print("boutta resize frame")
 	# resize the frame, convert it to grayscale, and blur it
 	frame = imutils.resize(frame, width=500)
 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	gray = cv2.GaussianBlur(gray, (21, 21), 0)
-    orig = frame.copy()
+	orig = frame.copy()
 
-    # detect people in the image
-	(rects, weights) = hog.detectMultiScale(image, winStride=(4, 4),
+	print("bitches be detected now")
+    	# detect people in the image
+	(rects, weights) = hog.detectMultiScale(gray, winStride=(64, 64),
 		padding=(8, 8), scale=1.05)
 
+	print("boxing is for pussies")
 	# draw the original bounding boxes
 	for (x, y, w, h) in rects:
 		cv2.rectangle(orig, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
+	print("jk, suppressing")
 	# apply non-maxima suppression to the bounding boxes using a
 	# fairly large overlap threshold to try to maintain overlapping
 	# boxes that are still people
 	rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
 	pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
 
+	print("drawing final boxes")
 	# draw the final bounding boxes
 	for (xA, yA, xB, yB) in pick:
 		cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
 
-    if (len(pick) != 0):
-        text = "Occupied"
+	if (len(pick) != 0):
+       		text = "Occupied"
 
     # draw the text and timestamp on the frame
 	ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
@@ -109,7 +126,7 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
 					cv2.imwrite(t.path, frame)
 
 					# upload the image to Dropbox and cleanup the tempory image
-					print "[UPLOAD] {}".format(ts)
+					print("[UPLOAD] {}".format(ts))
 					path = "{base_path}/{timestamp}.jpg".format(
 						base_path=conf["dropbox_base_path"], timestamp=ts)
 					client.put_file(path, open(t.path, "rb"))
@@ -132,7 +149,12 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
 
 		# if the `q` key is pressed, break from the lop
 		if key == ord("q"):
+			camera.close()
 			break
 
 	# clear the stream in preparation for the next frame
 	rawCapture.truncate(0)
+	
+	if key == ord("q"):
+		camera.close()
+		break
