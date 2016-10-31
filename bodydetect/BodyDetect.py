@@ -81,3 +81,58 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
 	# draw the final bounding boxes
 	for (xA, yA, xB, yB) in pick:
 		cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
+
+    if (len(pick) != 0):
+        text = "Occupied"
+
+    # draw the text and timestamp on the frame
+	ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
+	cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
+		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+	cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
+		0.35, (0, 0, 255), 1)
+
+    # check to see if the room is occupied
+	if text == "Occupied":
+		# check to see if enough time has passed between uploads
+		if (timestamp - lastUploaded).seconds >= conf["min_upload_seconds"]:
+			# increment the motion counter
+			motionCounter += 1
+
+			# check to see if the number of frames with consistent motion is
+			# high enough
+			if motionCounter >= conf["min_motion_frames"]:
+				# check to see if dropbox sohuld be used
+				if conf["use_dropbox"]:
+					# write the image to temporary file
+					t = TempImage()
+					cv2.imwrite(t.path, frame)
+
+					# upload the image to Dropbox and cleanup the tempory image
+					print "[UPLOAD] {}".format(ts)
+					path = "{base_path}/{timestamp}.jpg".format(
+						base_path=conf["dropbox_base_path"], timestamp=ts)
+					client.put_file(path, open(t.path, "rb"))
+					t.cleanup()
+
+				# update the last uploaded timestamp and reset the motion
+				# counter
+				lastUploaded = timestamp
+				motionCounter = 0
+
+	# otherwise, the room is not occupied
+	else:
+		motionCounter = 0
+
+	# check to see if the frames should be displayed to screen
+	if conf["show_video"]:
+		# display the security feed
+		cv2.imshow("Security Feed", frame)
+		key = cv2.waitKey(1) & 0xFF
+
+		# if the `q` key is pressed, break from the lop
+		if key == ord("q"):
+			break
+
+	# clear the stream in preparation for the next frame
+	rawCapture.truncate(0)
