@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BIF VERSION="0.3"  xmlns="http://www.cs.ubc.ca/labs/lci/fopi/ve/XMLBIFv0_3"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.cs.ubc.ca/labs/lci/fopi/ve/XMLBIFv0_3 http://www.cs.ubc.ca/labs/lci/fopi/ve/XMLBIFv0_3/XMLBIFv0_3.xsd">
+<NETWORK>
+<NAME>Untitled</NAME>
+<PROPERTY>detailed = </PROPERTY>
+<PROPERTY>short = </PROPERTY>
+
+<VARIABLE TYPE="nature">
+	<NAME>Person Dected</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (7423.19140625, 5255.11474609375)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>Something is Stolen</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (7423.19140625, 5706.94189453125)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>Time of Day</NAME>
+	<OUTCOME>D</OUTCOME>
+	<OUTCOME>N</OUTCOME>
+	<PROPERTY>position = (7896.34912109375, 5034.05029296875)</PROPERTY>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>Tampered</NAME>
+	<OUTCOME>T</OUTCOME>
+	<OUTCOME>F</OUTCOME>
+	<PROPERTY>position = (7021.78369140625, 5047.625)</PROPERTY>
+</VARIABLE>
+
+<DEFINITION>
+	<FOR>Person Dected</FOR>
+	<GIVEN>Time of Day</GIVEN>
+	<GIVEN>Tampered</GIVEN>
+	<TABLE>0.2 0.8 0.95 0.05 0.05 0.95 0.15 0.85</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>Something is Stolen</FOR>
+	<GIVEN>Person Dected</GIVEN>
+	<GIVEN>Time of Day</GIVEN>
+	<GIVEN>Tampered</GIVEN>
+	<TABLE>0.75 0.25 0.05 0.95 0.99 0.01 0.8 0.2 0.5 0.5 0.01 0.99 0.75 0.25 0.15 0.85</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>Time of Day</FOR>
+	<TABLE>0.4999 0.5001</TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>Tampered</FOR>
+	<TABLE>0.1 0.9</TABLE>
+</DEFINITION>
+</NETWORK>
+</BIF>
