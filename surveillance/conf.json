@@ -1,9 +1,9 @@
 {
 	"show_video": true,
 	"use_dropbox": true,
-	"dropbox_key": "YOUR_DROPBOX_KEY",
-	"dropbox_secret": "YOUR_DROPBOX_SECRET",
-	"dropbox_base_path": "YOUR_DROPBOX_APP_PATH",
+	"dropbox_key": "46zar2g5ile5808",
+	"dropbox_secret": "bgj2u06z101lq1u",
+	"dropbox_base_path": "CameraCV",
 	"min_upload_seconds": 3.0,
 	"min_motion_frames": 8,
 	"camera_warmup_time": 2.5,
