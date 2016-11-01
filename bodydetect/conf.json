@@ -1,11 +1,11 @@
 {
-	"show_video": true,
+	"show_video": false,
 	"use_dropbox": true,
 	"dropbox_key": "46zar2g5ile5808",
 	"dropbox_secret": "bgj2u06z101lq1u",
 	"dropbox_base_path": "CameraCV",
 	"min_upload_seconds": 3.0,
-	"min_motion_frames": 8,
+	"min_motion_frames": 1,
 	"camera_warmup_time": 2.5,
 	"delta_thresh": 5,
 	"resolution": [640, 480],

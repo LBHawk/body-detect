@@ -79,7 +79,7 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
 
 	print("bitches be detected now")
     	# detect people in the image
-	(rects, weights) = hog.detectMultiScale(gray, winStride=(64, 64),
+	(rects, weights) = hog.detectMultiScale(gray, winStride=(8, 8),
 		padding=(8, 8), scale=1.05)
 
 	print("boxing is for pussies")
@@ -154,7 +154,3 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
 
 	# clear the stream in preparation for the next frame
 	rawCapture.truncate(0)
-	
-	if key == ord("q"):
-		camera.close()
-		break
